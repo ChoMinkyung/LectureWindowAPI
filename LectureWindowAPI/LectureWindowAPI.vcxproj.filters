@@ -16,6 +16,18 @@
     <Filter Include="소스 파일\20230628">
       <UniqueIdentifier>{9529fdbc-f760-49ac-99b6-a1c3746af7d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\20230629">
+      <UniqueIdentifier>{ef8310a9-1239-44fe-a361-d5739e7966b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\cppfile">
+      <UniqueIdentifier>{b32e634d-c913-4a2b-90ad-9d0016aff216}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\20230626">
+      <UniqueIdentifier>{c7fd7c01-adcb-4d25-9bb4-11035e56d2fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\NewFilter1">
+      <UniqueIdentifier>{12ec3e5a-6a2f-45dc-80c8-12980928aaaa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -30,14 +42,20 @@
     <ClInclude Include="LectureWindowAPI.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CCircle.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CRect.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CStar.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LectureWindowAPI.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="20230626_Q1.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="memo.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -55,6 +73,36 @@
     </ClCompile>
     <ClCompile Include="20230628_Q4.cpp">
       <Filter>소스 파일\20230628</Filter>
+    </ClCompile>
+    <ClCompile Include="20230629_Q1.cpp">
+      <Filter>소스 파일\20230629</Filter>
+    </ClCompile>
+    <ClCompile Include="20230629.cpp">
+      <Filter>소스 파일\20230629</Filter>
+    </ClCompile>
+    <ClCompile Include="20230629_Q2.cpp">
+      <Filter>소스 파일\20230629</Filter>
+    </ClCompile>
+    <ClCompile Include="CObject.cpp">
+      <Filter>소스 파일\cppfile</Filter>
+    </ClCompile>
+    <ClCompile Include="20230626_Q1.cpp">
+      <Filter>소스 파일\20230626</Filter>
+    </ClCompile>
+    <ClCompile Include="LectureWindowAPI.cpp">
+      <Filter>소스 파일\20230626</Filter>
+    </ClCompile>
+    <ClCompile Include="CCircle.cpp">
+      <Filter>소스 파일\cppfile</Filter>
+    </ClCompile>
+    <ClCompile Include="소스.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CRect.cpp">
+      <Filter>소스 파일\cppfile</Filter>
+    </ClCompile>
+    <ClCompile Include="CStar.cpp">
+      <Filter>소스 파일\cppfile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
