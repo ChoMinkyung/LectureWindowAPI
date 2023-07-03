@@ -55,8 +55,8 @@ void CStar::Draw(HDC hdc)
 
 	for (int i = 0; i < 5; i++)
 	{
-		large_point[i * 2].x = r * cos(DegreeToRadian(-36 + 72 * i)) + point.x +r*cos(DegreeToRadian(angle));
-		large_point[i * 2].y = r * sin(DegreeToRadian(-36 + 72 * i)) + point.y + r * sin(DegreeToRadian(angle));
+		large_point[i * 2].x = r * cos(DegreeToRadian(-36 + 72 * i)) + point.x + cos(DegreeToRadian(angle));
+		large_point[i * 2].y = r * sin(DegreeToRadian(-36 + 72 * i)) + point.y + sin(DegreeToRadian(angle));
 	}
 
 	double d = sqrt(pow(large_point[0].x - large_point[2].x, 2) + pow(large_point[0].y - large_point[2].y, 2));
@@ -64,8 +64,8 @@ void CStar::Draw(HDC hdc)
 
 	for (int i = 0; i < 5; i++)
 	{
-		large_point[i * 2 + 1].x = small_r * cos(DegreeToRadian(0 + 72 * i)) + point.x + r * cos(DegreeToRadian(angle));
-		large_point[i * 2 + 1].y = small_r * sin(DegreeToRadian(0 + 72 * i)) + point.y + r * sin(DegreeToRadian(angle));
+		large_point[i * 2 + 1].x = small_r * cos(DegreeToRadian(0 + 72 * i)) + point.x + cos(DegreeToRadian(angle));
+		large_point[i * 2 + 1].y = small_r * sin(DegreeToRadian(0 + 72 * i)) + point.y + sin(DegreeToRadian(angle));
 	}
 
 	HPEN hPen = CreatePen(PS_NULL, 0, RGB(1, 0, 0)); // 선 없는 펜 생성

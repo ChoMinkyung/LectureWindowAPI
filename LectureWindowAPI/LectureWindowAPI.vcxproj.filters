@@ -25,7 +25,7 @@
     <Filter Include="소스 파일\20230626">
       <UniqueIdentifier>{c7fd7c01-adcb-4d25-9bb4-11035e56d2fd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\NewFilter1">
+    <Filter Include="소스 파일\20230703">
       <UniqueIdentifier>{12ec3e5a-6a2f-45dc-80c8-12980928aaaa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -103,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="CStar.cpp">
       <Filter>소스 파일\cppfile</Filter>
+    </ClCompile>
+    <ClCompile Include="20230703.cpp">
+      <Filter>소스 파일\20230703</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

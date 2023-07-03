@@ -1,17 +1,58 @@
 // LectureWindowAPI.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "framework.h"
 #include "LectureWindowAPI.h"
 #include <cmath>
 #include <vector>
+#include <commdlg.h>
+#include <stdio.h>
+
 #include "CObject.h"
 #include "CCircle.h"
 #include "CRect.h"
 #include "CStar.h"
 
-
 #define MAX_LOADSTRING 100
+
+void OutFromFile(TCHAR filename[], HWND hWnd)
+{
+	FILE* fPtr;
+	HDC hdc;
+	int line;
+	TCHAR buffer[500];
+	line = 0;
+	hdc = GetDC(hWnd);
+#ifdef _UNICODE
+	_tfopen_s(&fPtr, filename, _T("r, ccs=UNICODE"));
+#else 
+	_tfopen_s(&fPtr, filename, _T("r"));
+#endif
+	while (_fgetts(buffer, 100, fPtr) != NULL)
+	{
+		if (buffer[_tcslen(buffer) - 1] == _T('\n'))
+			buffer[_tcslen(buffer) - 1] = NULL;
+		TextOut(hdc, 0, line * 20, buffer, _tcslen(buffer));
+		line++;
+	}
+	                       
+	fclose(fPtr);
+	ReleaseDC(hWnd, hdc);
+}
+
+void Chat()
+{
+	/*for (int i = 0; i < 10; i++)
+	{
+		TextOut(hdc, 100, yPos - 20 * (line - i), str[i], _tcslen(str[i]));
+		GetTextExtentPoint(hdc, str[i], _tcslen(str[i]), &size);
+		SetCaretPos(100 + size.cx, yPos);
+	}
+
+	TextOut(hdc, 100, yPos, str[10], _tcslen(str[10]));*/
+}
 
 
 // 전역 변수:
@@ -63,7 +104,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	return (int)msg.wParam;
 }
 
-////  함수: MyRegisterClass()
+
+
+//
+//  함수: MyRegisterClass()
 //
 //  용도: 창 클래스를 등록합니다.
 //
@@ -102,8 +146,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-	HWND hWnd = CreateWindowW(szWindowClass, _T("20230629_Q2"), WS_OVERLAPPEDWINDOW,
-		200, 300, 1200, 800, nullptr, nullptr, hInstance, nullptr); //szTitle , CW_USEDEFAULT, 0, CW_USEDEFAULT, 0
+	HWND hWnd = CreateWindowW(szWindowClass, _T("민경의 첫 번째 윈도우"), WS_OVERLAPPEDWINDOW,
+		200, 300, 600, 400, nullptr, nullptr, hInstance, nullptr); //szTitle , CW_USEDEFAULT, 0, CW_USEDEFAULT, 0
 
 	if (!hWnd)
 	{
@@ -133,10 +177,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static BOOL bFlag;
 
 	static int count;
+	enum { CIRCLE, RECT, STAR, CLEAR, NONE };
 
+	static int type = NONE;
 	static std::vector<CObject*> objects;
 	static CObject* obj;
 	HDC hdc;
+	//static TCHAR buffer[500];
 
 	switch (message)
 	{
@@ -149,6 +196,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYDOWN: //-> 가상 키 값 : wParam
 	{
+
 	}
 	break;
 
@@ -176,6 +224,71 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
+		case ID_DRAW_CIRCLE:
+		{
+
+			int temp = type;
+			int ans = MessageBox(hWnd, _T("원 그릴래?"), _T("도형 선택"), MB_YESNOCANCEL);
+			if (ans == IDYES)
+			{
+				type = CIRCLE;
+			}
+			else if (ans == IDNO)
+			{
+				type = NONE;
+			}
+			else
+			{
+				type = temp;
+			}
+		}
+		break;
+		case ID_DRAW_RECT:
+			type = RECT;
+			break;
+
+		case ID_DRAW_STAR:
+			type = STAR;
+			break;
+		case ID_CLEAR:
+			type = NONE;
+			objects.clear();
+			break;
+		case ID_FILEOPEN:
+		{
+			TCHAR filter[] = _T("Every file(*.*) \0*.*\0Text file\0*.txt;*.doc\0");
+			TCHAR lpstrFile[100] = _T("");
+
+			OPENFILENAME ofn;
+			memset(&ofn, 0, sizeof(OPENFILENAME));
+
+			ofn.lStructSize = sizeof(OPENFILENAME);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFilter = filter;
+			ofn.lpstrFile = lpstrFile;
+			ofn.nMaxFile = 256;
+			ofn.lpstrInitialDir = _T(".");
+			int ans = 0;
+
+			if (GetOpenFileName(&ofn) != 0)
+			{
+				TCHAR str[100];
+				_stprintf(str, _T("%s 파일을 열겠습니까?"), ofn.lpstrFile);
+				ans = MessageBox(hWnd, str, _T("파일 열기"), MB_OK);
+				if (ans == IDOK)
+				{
+					OutFromFile(ofn.lpstrFile, hWnd);
+					//_tcscpy(buffer, OutFromFile(ofn.lpstrFile, hWnd));
+				}
+			}
+		/*	else
+			{
+				TCHAR str[100];
+				_stprintf(str, _T("%s 파일을 열 수 없습니다."), ofn.lpstrFile);
+				MessageBox(hWnd, str, _T("확인"), MB_OK);
+			}*/
+		}
+		break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -187,17 +300,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		ptMousePos.x = LOWORD(lParam);
 		ptMousePos.y = HIWORD(lParam);
 		srand(time(NULL));
-		int type = 2;// = rand() % 3;
+		//int type = rand() % 3;
 
 		switch (type)
 		{
-		case 0:
+		case CIRCLE:
 			obj = new CCircle(ptMousePos, rand() % 20 + 20);
 			break;
-		case 1:
+		case RECT:
 			obj = new CRect(ptMousePos, rand() % 20 + 20);
 			break;
-		case 2:
+		case STAR:
 			obj = new CStar(ptMousePos, rand() % 20 + 20);
 			break;
 		}
@@ -218,7 +331,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			e->Update(&rectView);
 		}
-		InvalidateRect(hWnd, NULL, TRUE);
+		//InvalidateRect(hWnd, NULL, TRUE);
 
 		break;
 
@@ -226,6 +339,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		PAINTSTRUCT ps;
 		hdc = BeginPaint(hWnd, &ps);
+
+		switch (type)
+		{
+		case CIRCLE:
+			TextOut(hdc, 50, 50, _T("MODE : CIRCLE"), _tcslen(_T("MODE : CIRCLE")));
+			break;
+		case RECT:
+			TextOut(hdc, 50, 50, _T("MODE : RECT"), _tcslen(_T("MODE : RECT")));
+			break;
+		case STAR:
+			TextOut(hdc, 50, 50, _T("MODE : STAR"), _tcslen(_T("MODE : STAR")));
+			break;
+		}
+
+		//TextOut(hdc, 50, 50, buffer, _tcslen(buffer));
 
 		for (auto e : objects)
 		{
@@ -264,4 +392,3 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	return (INT_PTR)FALSE;
 }
-

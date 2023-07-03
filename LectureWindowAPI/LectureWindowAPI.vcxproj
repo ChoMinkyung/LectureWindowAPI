@@ -164,6 +164,9 @@
     <ClCompile Include="20230629_Q2.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="20230703.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="CCircle.cpp" />
     <ClCompile Include="CObject.cpp" />
     <ClCompile Include="CRect.cpp" />
