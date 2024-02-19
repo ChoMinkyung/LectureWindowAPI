@@ -6,7 +6,7 @@
 
 CRect::CRect()
 {
-	shape = 0, point.x = 0, point.y = 0;
+	shape = 1, point.x = 0, point.y = 0;
 	speed = 10;
 	r = 20;
 	angle = 0;
@@ -25,7 +25,7 @@ CRect::CRect(POINT center, int r)
 	direction_y = sin(theta);
 
 	angle = 0;
-	this->shape = 1;
+	shape = 1;
 	this->r = r;
 }
 
@@ -64,7 +64,12 @@ void CRect::Draw(HDC hdc)
 	Polygon(hdc, rect_point, 4);
 }
 
-BOOL CRect::Collision(int shape)
+BOOL CRect::Collision(std::vector<CObject*>& objects)
 {
 	return 0;
+}
+
+int CRect::GetR()
+{
+	return r;
 }

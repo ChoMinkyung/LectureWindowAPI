@@ -3,12 +3,20 @@
 
 #include "framework.h"
 #include "LectureWindowAPI.h"
-#include <cmath>
+
+#include "AstarNode.h"
 #include <vector>
-#include "CObject.h"
-#include "CCircle.h"
-#include "CRect.h"
-#include "CStar.h"
+#include <iostream>
+using namespace std;
+#define MAX_LOADSTRING 100
+
+int row = 9;
+int col = 9;
+static AstarNode Node(row, col);
+
+int call = 0;
+VOID CALLBACK MoveProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+static RECT* circle_pos = new RECT{ 0, 0, 0, 0 };
 
 #ifdef UNICODE
 
@@ -19,9 +27,6 @@
 #pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console") 
 
 #endif
-
-#define MAX_LOADSTRING 100
-\
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
@@ -42,7 +47,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	// TODO: 여기에 코드를 입력합니다.
-
 	// 전역 문자열을 초기화합니다.
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadStringW(hInstance, IDC_LECTUREWINDOWAPI, szWindowClass, MAX_LOADSTRING);
@@ -71,7 +75,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	return (int)msg.wParam;
 }
 
-////  함수: MyRegisterClass()
+
+
+//
+//  함수: MyRegisterClass()
 //
 //  용도: 창 클래스를 등록합니다.
 //
@@ -110,8 +117,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-	HWND hWnd = CreateWindowW(szWindowClass, _T("20230629_Q2"), WS_OVERLAPPEDWINDOW,
-		200, 300, 1200, 800, nullptr, nullptr, hInstance, nullptr); //szTitle , CW_USEDEFAULT, 0, CW_USEDEFAULT, 0
+	HWND hWnd = CreateWindowW(szWindowClass, _T("A* Algorithm"), WS_OVERLAPPEDWINDOW,
+		50, 50, row*100 + 15, col*100 + 55, nullptr, nullptr, hInstance, nullptr); //szTitle , CW_USEDEFAULT, 0, CW_USEDEFAULT, 0
 
 	if (!hWnd)
 	{
@@ -124,7 +131,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-//
 //  함수: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
 //  용도: 주 창의 메시지를 처리합니다.
@@ -136,42 +142,76 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static RECT rectView; //윈도우 크기 담기
+	HDC hdc_ = GetDC(hWnd);
+
 	static POINT ptMousePos;
-	static BOOL bFlag;
-
-	static int count;
-
-	static std::vector<CObject*> objects;
-	static CObject* obj;
-	HDC hdc;
+	static POINT ptMousePosPrint;
+	static int startEndSelect = 0;
 
 	switch (message)
 	{
 	case WM_CREATE: // 윈도우가 생성될 때 한번 호출 (생성자처럼)
-		bFlag = false;
-		count = 0;
-		SetTimer(hWnd, 1, 700, NULL);
-		GetClientRect(hWnd, &rectView);
-		break;
 
+		break;
 	case WM_KEYDOWN: //-> 가상 키 값 : wParam
 	{
 	}
 	break;
-
 	case WM_KEYUP:
 	{
+
 	}
 	break;
 
 	case WM_CHAR:
 	{
+
+	}
+	break;
+	case WM_MOUSEMOVE:
+	{
+		ptMousePosPrint.x = LOWORD(lParam);
+		ptMousePosPrint.y = HIWORD(lParam);
+		//InvalidateRgn(hWnd, NULL, TRUE);
+
+
+	}
+	break;
+	case WM_LBUTTONDOWN:
+	{
+		ptMousePos.x = LOWORD(lParam);
+		ptMousePos.y = HIWORD(lParam);
+		cout << ptMousePos.x << ", " << ptMousePos.y << endl;
+
+		if (startEndSelect == 2)
+		{
+			Node.Reset();
+			startEndSelect = 0;
+		}
+
+		if (Node.InRect(ptMousePos, startEndSelect) == 1)
+		{
+			startEndSelect++;
+			if (startEndSelect == 2)
+			{
+				while (Node.FindMin() == 0)
+				{
+					Node.FindMin();
+					InvalidateRgn(hWnd, NULL, TRUE);
+				}
+
+				cout << "SetTimer" << endl;
+				SetTimer(hWnd, 1, 700, MoveProc);
+
+				ReleaseDC(hWnd, hdc_);
+
+			}
+		}
+
 		InvalidateRgn(hWnd, NULL, TRUE);
 
 	}
 	break;
-
 	case WM_COMMAND:
 	{
 		int wmId = LOWORD(wParam);
@@ -180,6 +220,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
@@ -189,88 +230,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	break;
-
-	case WM_LBUTTONDOWN:
-	{
-		ptMousePos.x = LOWORD(lParam);
-		ptMousePos.y = HIWORD(lParam);
-		srand(time(NULL));
-		int type = 0;// rand() % 3;
-
-		switch (type)
-		{
-		case 0:
-			obj = new CCircle(ptMousePos, rand() % 30 + 20);
-			break;
-		case 1:
-			obj = new CRect(ptMousePos, rand() % 30 + 20);
-			break;
-		case 2:
-			obj = new CStar(ptMousePos, rand() % 30 + 20);
-			break;
-		}
-
-		objects.push_back(obj);
-		InvalidateRect(hWnd, NULL, TRUE); // 지우고 다시 그려줘
-	}
-
-
-	break;
-	case WM_LBUTTONUP:
-
-		break;
-
-	case WM_TIMER:
-	{
-		hdc = GetDC(hWnd);
-
-		for (int i = 0; i < objects.size(); i++)
-		{
-			for (int j = i + 1; j < objects.size(); j++)
-			{
-				if (objects[i]->Collision(objects))
-				{
-					printf("%d와 %d 충돌\n", i, j);
-					objects[i]->SetRGB(255, 92, 33);
-					objects[i]->SetCollision(TRUE);
-					objects[j]->SetRGB(255, 92, 33);
-					objects[j]->SetCollision(TRUE);
-				}
-
-			}
-
-			objects[i]->Update(&rectView);
-			InvalidateRect(hWnd, NULL, TRUE);
-
-		}
-		ReleaseDC(hWnd, hdc);
-	}
-
-
-	break;
-
 	case WM_PAINT:
 	{
 		PAINTSTRUCT ps;
-		hdc = BeginPaint(hWnd, &ps);
-		HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
-		HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-		for (auto e : objects)
-		{
-			hBrush = CreateSolidBrush(RGB(e->GetRGB().r, e->GetRGB().g, e->GetRGB().b));
-			oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-			e->Draw(hdc);
+		HDC hdc = BeginPaint(hWnd, &ps);
 
-
-		}
-		SelectObject(hdc, oldBrush);
-		DeleteObject(hBrush);
+		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+		//TCHAR str[128];
+		//wsprintf(str, TEXT("%d %d"),ptMousePosPrint.x, ptMousePosPrint.y);
+		//TextOut(hdc, 100, 100, str, lstrlen(str));
+		Node.Draw(hdc);
+		Ellipse(hdc, circle_pos->left, circle_pos->top, circle_pos->right, circle_pos->bottom);
 		EndPaint(hWnd, &ps);
 	}
 	break;
 	case WM_DESTROY:
-		KillTimer(hWnd, 1);
 		PostQuitMessage(0);
+		KillTimer(hWnd, 1);
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
@@ -298,3 +274,22 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return (INT_PTR)FALSE;
 }
 
+VOID CALLBACK MoveProc(HWND hWnd, UINT uMsg, UINT idEvent, DWORD dwTime)
+{
+	HDC hdc = GetDC(hWnd);
+
+	circle_pos = Node.Move(hdc, call);
+	cout << circle_pos->left << ", " << circle_pos->right << ", "
+		<< circle_pos->top << ", " << circle_pos->bottom << endl;
+	cout << "call : " << call << endl;
+	call++;
+	if (circle_pos->left==-1)
+	{
+		call = 0;
+
+		KillTimer(hWnd, 1);
+	}
+	InvalidateRgn(hWnd, NULL, TRUE);
+
+	ReleaseDC(hWnd, hdc);
+}

@@ -28,6 +28,12 @@
     <Filter Include="소스 파일\20230703">
       <UniqueIdentifier>{12ec3e5a-6a2f-45dc-80c8-12980928aaaa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\20230705">
+      <UniqueIdentifier>{c8dc780b-4194-4082-8e98-a0c437c3304b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\20230706">
+      <UniqueIdentifier>{edcaeaa6-aab9-4968-894e-77f609617109}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -52,6 +58,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CStar.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="AstarNode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -83,29 +92,53 @@
     <ClCompile Include="20230629_Q2.cpp">
       <Filter>소스 파일\20230629</Filter>
     </ClCompile>
-    <ClCompile Include="CObject.cpp">
-      <Filter>소스 파일\cppfile</Filter>
-    </ClCompile>
     <ClCompile Include="20230626_Q1.cpp">
       <Filter>소스 파일\20230626</Filter>
     </ClCompile>
     <ClCompile Include="LectureWindowAPI.cpp">
       <Filter>소스 파일\20230626</Filter>
     </ClCompile>
-    <ClCompile Include="CCircle.cpp">
-      <Filter>소스 파일\cppfile</Filter>
-    </ClCompile>
     <ClCompile Include="소스.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CRect.cpp">
-      <Filter>소스 파일\cppfile</Filter>
     </ClCompile>
     <ClCompile Include="CStar.cpp">
       <Filter>소스 파일\cppfile</Filter>
     </ClCompile>
     <ClCompile Include="20230703.cpp">
       <Filter>소스 파일\20230703</Filter>
+    </ClCompile>
+    <ClCompile Include="20230705.cpp">
+      <Filter>소스 파일\20230705</Filter>
+    </ClCompile>
+    <ClCompile Include="20230705_ImageLoad.cpp">
+      <Filter>소스 파일\20230705</Filter>
+    </ClCompile>
+    <ClCompile Include="소스1.cpp">
+      <Filter>소스 파일\20230705</Filter>
+    </ClCompile>
+    <ClCompile Include="20230706_Ani.cpp">
+      <Filter>소스 파일\20230706</Filter>
+    </ClCompile>
+    <ClCompile Include="20230707.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CCircle.cpp">
+      <Filter>소스 파일\cppfile</Filter>
+    </ClCompile>
+    <ClCompile Include="CObject.cpp">
+      <Filter>소스 파일\cppfile</Filter>
+    </ClCompile>
+    <ClCompile Include="CRect.cpp">
+      <Filter>소스 파일\cppfile</Filter>
+    </ClCompile>
+    <ClCompile Include="20230710.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="20230724_Astar.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="AstarNode.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +151,9 @@
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="LectureWindowAPI.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="images\picture.bmp">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

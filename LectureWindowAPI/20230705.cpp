@@ -3,25 +3,42 @@
 
 #include "framework.h"
 #include "LectureWindowAPI.h"
-#include <cmath>
-#include <vector>
+
 #include "CObject.h"
 #include "CCircle.h"
-#include "CRect.h"
-#include "CStar.h"
 
-#ifdef UNICODE
-
-#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console") 
-
-#else
-
-#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console") 
-
-#endif
+#include <cmath>
+#include <vector>
 
 #define MAX_LOADSTRING 100
-\
+#define timer_ID_1 11
+
+const int circleR = 30;
+
+double LengthPts(POINT pt1, POINT pt2)
+{
+	return sqrt((float)(pt2.x - pt1.x) * (float)(pt2.x - pt1.x) + (float)(pt2.y - pt1.y) * (float)(pt2.y - pt1.y));
+}
+
+BOOL InCircle(POINT pt1, POINT pt2)
+{
+	if (LengthPts(pt1, pt2) < circleR) return TRUE;
+	else return FALSE;
+}
+
+void DrawCircle(HDC hdc, POINT center, int r, BOOL bFlag)
+{
+	if (bFlag)
+		SelectObject(hdc, GetStockObject(LTGRAY_BRUSH));
+
+	double x1 = center.x - r;
+	double y1 = center.y - r;
+	double x2 = center.x + r;
+	double y2 = center.y + r;
+
+	Ellipse(hdc, x1, y1, x2, y2);
+}
+
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
@@ -71,7 +88,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	return (int)msg.wParam;
 }
 
-////  함수: MyRegisterClass()
+
+
+//
+//  함수: MyRegisterClass()
 //
 //  용도: 창 클래스를 등록합니다.
 //
@@ -110,8 +130,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-	HWND hWnd = CreateWindowW(szWindowClass, _T("20230629_Q2"), WS_OVERLAPPEDWINDOW,
-		200, 300, 1200, 800, nullptr, nullptr, hInstance, nullptr); //szTitle , CW_USEDEFAULT, 0, CW_USEDEFAULT, 0
+	HWND hWnd = CreateWindowW(szWindowClass, _T("민경의 첫 번째 윈도우"), WS_OVERLAPPEDWINDOW,
+		200, 300, 800, 600, nullptr, nullptr, hInstance, nullptr); //szTitle , CW_USEDEFAULT, 0, CW_USEDEFAULT, 0
 
 	if (!hWnd)
 	{
@@ -136,39 +156,63 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	//static TCHAR str[100];
+	//static int count, yPos;
+
+	static POINT ptCurPos;
 	static RECT rectView; //윈도우 크기 담기
 	static POINT ptMousePos;
-	static BOOL bFlag;
 
-	static int count;
+	static HMENU hMenu, hSubMenu;
+	static BOOL Copy;
+	static int n = 0;
 
+	static std::vector<BOOL> bFlag;
 	static std::vector<CObject*> objects;
-	static CObject* obj;
-	HDC hdc;
+	static CCircle *obj;
+	static int select = -1;
 
 	switch (message)
 	{
 	case WM_CREATE: // 윈도우가 생성될 때 한번 호출 (생성자처럼)
-		bFlag = false;
-		count = 0;
-		SetTimer(hWnd, 1, 700, NULL);
-		GetClientRect(hWnd, &rectView);
-		break;
+		ptCurPos.x = 40;
+		ptCurPos.y = 40;
+		bFlag.push_back(FALSE);
+		obj = new CCircle({ 50, 50 }, 50);
+		objects.push_back(obj);
+		n++;
+		GetClientRect(hWnd, &rectView); // 현재 윈도우 크기 가져옴
 
+		hMenu = GetMenu(hWnd);
+		hSubMenu = GetSubMenu(hMenu, 2);
+		EnableMenuItem(hSubMenu, ID_EDITCOPY, MF_GRAYED);
+		EnableMenuItem(hSubMenu, ID_EDITPASTE, MF_GRAYED);
+		Copy = FALSE;
+		break;
 	case WM_KEYDOWN: //-> 가상 키 값 : wParam
 	{
+		
 	}
 	break;
-
 	case WM_KEYUP:
 	{
+
 	}
 	break;
-
 	case WM_CHAR:
 	{
-		InvalidateRgn(hWnd, NULL, TRUE);
-
+		if (wParam == 'C' || wParam == 'c')
+		{
+			UINT state = GetMenuState(hSubMenu, ID_EDITCOPY, MF_BYCOMMAND);
+			if (state & MF_DISABLED || state & MF_GRAYED)
+			{
+				EnableMenuItem(hSubMenu, ID_EDITCOPY, MF_ENABLED);
+			}
+			else if (state == MF_ENABLED)
+			{
+				EnableMenuItem(hSubMenu, ID_EDITCOPY, MF_GRAYED);
+			}
+		}
 	}
 	break;
 
@@ -184,6 +228,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
+		case ID_EDITCOPY:
+			Copy = TRUE;
+			InvalidateRect(hWnd, NULL, TRUE);
+			break;
+		case ID_EDITPASTE:
+			bFlag.push_back(FALSE);
+			obj = new CCircle(objects[select]->GetPoint(), objects[select]->GetR());
+			objects.push_back(obj);
+			n++;
+			Copy = FALSE;
+			InvalidateRect(hWnd, NULL, TRUE);
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -191,86 +247,78 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 
 	case WM_LBUTTONDOWN:
-	{
 		ptMousePos.x = LOWORD(lParam);
 		ptMousePos.y = HIWORD(lParam);
-		srand(time(NULL));
-		int type = 0;// rand() % 3;
-
-		switch (type)
+		select = 0;
+		for (int i = 0; i < n; i++)
 		{
-		case 0:
-			obj = new CCircle(ptMousePos, rand() % 30 + 20);
-			break;
-		case 1:
-			obj = new CRect(ptMousePos, rand() % 30 + 20);
-			break;
-		case 2:
-			obj = new CStar(ptMousePos, rand() % 30 + 20);
-			break;
+			if (InCircle(ptMousePos, objects[i]->GetPoint()))
+			{
+				if (LengthPts(ptMousePos, objects[select]->GetPoint()) > LengthPts(ptMousePos, objects[i]->GetPoint())) select = i;
+			}
 		}
-
-		objects.push_back(obj);
+		bFlag[select] = TRUE;
 		InvalidateRect(hWnd, NULL, TRUE); // 지우고 다시 그려줘
-	}
-
-
-	break;
-	case WM_LBUTTONUP:
 
 		break;
+	case WM_LBUTTONUP:
+		bFlag[select] = FALSE;
+		InvalidateRect(hWnd, NULL, TRUE);
+		break;
 
-	case WM_TIMER:
-	{
-		hdc = GetDC(hWnd);
-
-		for (int i = 0; i < objects.size(); i++)
+	case WM_MOUSEMOVE: // 얘가 시작되면 모든 이벤트를 받기 때문에 마우스가 눌렸을 때만 작동하도록
+		if (bFlag[select])
 		{
-			for (int j = i + 1; j < objects.size(); j++)
-			{
-				if (objects[i]->Collision(objects))
-				{
-					printf("%d와 %d 충돌\n", i, j);
-					objects[i]->SetRGB(255, 92, 33);
-					objects[i]->SetCollision(TRUE);
-					objects[j]->SetRGB(255, 92, 33);
-					objects[j]->SetCollision(TRUE);
-				}
-
-			}
-
-			objects[i]->Update(&rectView);
-			InvalidateRect(hWnd, NULL, TRUE);
-
+			ptCurPos.x = LOWORD(lParam);
+			ptCurPos.y = HIWORD(lParam);
+			InvalidateRect(hWnd, NULL, TRUE); // 지우고 다시 그려줘
 		}
-		ReleaseDC(hWnd, hdc);
-	}
-
-
-	break;
-
+		break;
 	case WM_PAINT:
 	{
 		PAINTSTRUCT ps;
-		hdc = BeginPaint(hWnd, &ps);
-		HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
-		HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+		HDC hdc = BeginPaint(hWnd, &ps);
+
 		for (auto e : objects)
 		{
-			hBrush = CreateSolidBrush(RGB(e->GetRGB().r, e->GetRGB().g, e->GetRGB().b));
-			oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
 			e->Draw(hdc);
-
-
 		}
-		SelectObject(hdc, oldBrush);
-		DeleteObject(hBrush);
+
+		if (Copy)
+		{
+			TextOut(hdc, 100, 100, _T("copy 가능"), _tcsclen(_T("copy 가능")));
+			if (select > 0)
+			{
+				TextOut(hdc, 100, 120, _T("선택됨"), _tcsclen(_T("선택됨")));
+				EnableMenuItem(hSubMenu, ID_EDITCOPY, MF_GRAYED);
+				EnableMenuItem(hSubMenu, ID_EDITPASTE, MF_ENABLED);
+			}
+		}
+		else
+		{
+			EnableMenuItem(hSubMenu, ID_EDITCOPY, MF_ENABLED);
+			EnableMenuItem(hSubMenu, ID_EDITPASTE, MF_GRAYED);
+		}
+		//if (bFlag) Rectangle(hdc, ptCurPos.x - circleR, ptCurPos.y - circleR, ptCurPos.x + circleR, ptCurPos.y + circleR);
+		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+
 		EndPaint(hWnd, &ps);
 	}
 	break;
+	case WM_TIMER:
+	{
+		if (wParam == timer_ID_1)
+		{
+			ptCurPos.x += 20;
+			if (ptCurPos.x + 20 > rectView.right) ptCurPos.x -= 20;
+			InvalidateRect(hWnd, NULL, TRUE);
+		}
+	}
+	break;
 	case WM_DESTROY:
-		KillTimer(hWnd, 1);
+		//KillTimer(hWnd, timer_ID_1);
 		PostQuitMessage(0);
+
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
@@ -297,4 +345,3 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	return (INT_PTR)FALSE;
 }
-

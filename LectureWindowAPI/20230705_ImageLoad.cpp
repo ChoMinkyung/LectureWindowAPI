@@ -3,25 +3,20 @@
 
 #include "framework.h"
 #include "LectureWindowAPI.h"
-#include <cmath>
-#include <vector>
-#include "CObject.h"
-#include "CCircle.h"
-#include "CRect.h"
-#include "CStar.h"
-
-#ifdef UNICODE
-
-#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console") 
-
-#else
-
-#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console") 
-
-#endif
 
 #define MAX_LOADSTRING 100
-\
+
+#pragma comment(lib, "msimg32.lib")
+HBITMAP hBackImage;
+BITMAP bitBack;
+
+HBITMAP hTransparentImage;
+BITMAP bitTransparent;
+
+void CreateBitmap();
+void DrawBitmap(HWND hWnd, HDC hdc);
+void DeleteBitmap();
+
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
@@ -71,7 +66,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	return (int)msg.wParam;
 }
 
-////  함수: MyRegisterClass()
+
+
+//
+//  함수: MyRegisterClass()
 //
 //  용도: 창 클래스를 등록합니다.
 //
@@ -110,8 +108,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-	HWND hWnd = CreateWindowW(szWindowClass, _T("20230629_Q2"), WS_OVERLAPPEDWINDOW,
-		200, 300, 1200, 800, nullptr, nullptr, hInstance, nullptr); //szTitle , CW_USEDEFAULT, 0, CW_USEDEFAULT, 0
+	HWND hWnd = CreateWindowW(szWindowClass, _T("민경의 첫 번째 윈도우"), WS_OVERLAPPEDWINDOW,
+		200, 300, 800, 600, nullptr, nullptr, hInstance, nullptr); //szTitle , CW_USEDEFAULT, 0, CW_USEDEFAULT, 0
 
 	if (!hWnd)
 	{
@@ -136,38 +134,26 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static RECT rectView; //윈도우 크기 담기
-	static POINT ptMousePos;
-	static BOOL bFlag;
-
-	static int count;
-
-	static std::vector<CObject*> objects;
-	static CObject* obj;
-	HDC hdc;
 
 	switch (message)
 	{
 	case WM_CREATE: // 윈도우가 생성될 때 한번 호출 (생성자처럼)
-		bFlag = false;
-		count = 0;
-		SetTimer(hWnd, 1, 700, NULL);
-		GetClientRect(hWnd, &rectView);
-		break;
+		CreateBitmap();
 
+
+		break;
 	case WM_KEYDOWN: //-> 가상 키 값 : wParam
 	{
 	}
 	break;
-
 	case WM_KEYUP:
 	{
+
 	}
 	break;
 
 	case WM_CHAR:
 	{
-		InvalidateRgn(hWnd, NULL, TRUE);
 
 	}
 	break;
@@ -189,88 +175,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	break;
-
-	case WM_LBUTTONDOWN:
-	{
-		ptMousePos.x = LOWORD(lParam);
-		ptMousePos.y = HIWORD(lParam);
-		srand(time(NULL));
-		int type = 0;// rand() % 3;
-
-		switch (type)
-		{
-		case 0:
-			obj = new CCircle(ptMousePos, rand() % 30 + 20);
-			break;
-		case 1:
-			obj = new CRect(ptMousePos, rand() % 30 + 20);
-			break;
-		case 2:
-			obj = new CStar(ptMousePos, rand() % 30 + 20);
-			break;
-		}
-
-		objects.push_back(obj);
-		InvalidateRect(hWnd, NULL, TRUE); // 지우고 다시 그려줘
-	}
-
-
-	break;
-	case WM_LBUTTONUP:
-
-		break;
-
-	case WM_TIMER:
-	{
-		hdc = GetDC(hWnd);
-
-		for (int i = 0; i < objects.size(); i++)
-		{
-			for (int j = i + 1; j < objects.size(); j++)
-			{
-				if (objects[i]->Collision(objects))
-				{
-					printf("%d와 %d 충돌\n", i, j);
-					objects[i]->SetRGB(255, 92, 33);
-					objects[i]->SetCollision(TRUE);
-					objects[j]->SetRGB(255, 92, 33);
-					objects[j]->SetCollision(TRUE);
-				}
-
-			}
-
-			objects[i]->Update(&rectView);
-			InvalidateRect(hWnd, NULL, TRUE);
-
-		}
-		ReleaseDC(hWnd, hdc);
-	}
-
-
-	break;
-
 	case WM_PAINT:
 	{
 		PAINTSTRUCT ps;
-		hdc = BeginPaint(hWnd, &ps);
-		HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
-		HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-		for (auto e : objects)
-		{
-			hBrush = CreateSolidBrush(RGB(e->GetRGB().r, e->GetRGB().g, e->GetRGB().b));
-			oldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-			e->Draw(hdc);
+		HDC hdc = BeginPaint(hWnd, &ps);
+		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+		DrawBitmap(hWnd, hdc);
 
-
-		}
-		SelectObject(hdc, oldBrush);
-		DeleteObject(hBrush);
 		EndPaint(hWnd, &ps);
 	}
 	break;
 	case WM_DESTROY:
-		KillTimer(hWnd, 1);
 		PostQuitMessage(0);
+		DeleteBitmap();
+
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
@@ -298,3 +216,75 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return (INT_PTR)FALSE;
 }
 
+void CreateBitmap()
+{
+	// 수지
+	{
+		hBackImage = (HBITMAP)LoadImage(NULL, TEXT("images/rex_image.bmp"), IMAGE_BITMAP, 500, 500, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+
+
+		if (hBackImage == NULL)
+		{
+			DWORD dwError = GetLastError();
+			MessageBox(NULL, _T("이미지 로드 에러"), _T("에러에러에러"), MB_OK);
+			return;
+		}
+		GetObject(hBackImage, sizeof(BITMAP), &bitBack);
+
+	}
+
+	//시공
+	{
+		hTransparentImage = (HBITMAP)LoadImage(NULL, TEXT("images/sigong.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+
+		if (hTransparentImage == NULL)
+		{
+			DWORD dwError = GetLastError();
+			MessageBox(NULL, _T("이미지 로드 에러2"), _T("에러에러에러2"), MB_OK);
+			return;
+		}
+		GetObject(hTransparentImage, sizeof(BITMAP), &bitTransparent);
+	}
+}
+
+void DrawBitmap(HWND hWnd, HDC hdc)
+{
+	HDC hMemDC;
+	HBITMAP hOldBitmap;
+	int bx, by;
+
+	{
+		// >> : 수지
+		hMemDC = CreateCompatibleDC(hdc);
+		hOldBitmap = (HBITMAP)SelectObject(hMemDC, hBackImage);
+		bx = bitBack.bmWidth;
+		by = bitBack.bmHeight;
+
+		BitBlt(hdc, 0, 0, bx, by, hMemDC, 0, 0, SRCCOPY);
+
+		SelectObject(hMemDC, hOldBitmap);
+		DeleteDC(hMemDC);
+
+	}
+
+	//
+	{
+		hMemDC = CreateCompatibleDC(hdc);
+		hOldBitmap = (HBITMAP)SelectObject(hMemDC, hTransparentImage);
+		bx = bitTransparent.bmWidth;
+		by = bitTransparent.bmHeight;
+
+		//BitBlt(hdc, 100, 100, bx, by, hMemDC, 0, 0, SRCCOPY);
+		TransparentBlt(hdc, 100, 100, bx, by, hMemDC, 0, 0, bx, by, RGB(255, 0, 255));
+
+		SelectObject(hMemDC, hOldBitmap);
+		DeleteDC(hMemDC);
+	}
+
+}
+
+void DeleteBitmap()
+{
+	DeleteObject(hBackImage);
+	DeleteObject(hTransparentImage);
+}

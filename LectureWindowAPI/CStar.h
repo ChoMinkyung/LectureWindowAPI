@@ -13,6 +13,7 @@ public:
 
 	void Update(RECT *rectView);
 	void Draw(HDC hdc) override;
-	BOOL Collision(int shape) override;
+	BOOL Collision(CObject* object) override;
+	int GetR()override;
 };
 

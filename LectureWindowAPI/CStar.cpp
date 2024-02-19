@@ -5,7 +5,7 @@
 
 CStar::CStar()
 {
-	shape = 0, point.x = 0, point.y = 0;
+	shape = 2, point.x = 0, point.y = 0;
 	speed = 10;
 	r = 20;
 	angle = 0;
@@ -24,7 +24,7 @@ CStar::CStar(POINT center, int r)
 	direction_y = sin(theta);
 
 	angle = 0;
-	this->shape = 1;
+	shape = 2;
 	this->r = r;
 }
 
@@ -55,8 +55,8 @@ void CStar::Draw(HDC hdc)
 
 	for (int i = 0; i < 5; i++)
 	{
-		large_point[i * 2].x = r * cos(DegreeToRadian(-36 + 72 * i)) + point.x + cos(DegreeToRadian(angle));
-		large_point[i * 2].y = r * sin(DegreeToRadian(-36 + 72 * i)) + point.y + sin(DegreeToRadian(angle));
+		large_point[i * 2].x = r * cos(DegreeToRadian(angle -36 + 72 * i)) + point.x + cos(DegreeToRadian(angle));
+		large_point[i * 2].y = r * sin(DegreeToRadian(angle -36 + 72 * i)) + point.y + sin(DegreeToRadian(angle));
 	}
 
 	double d = sqrt(pow(large_point[0].x - large_point[2].x, 2) + pow(large_point[0].y - large_point[2].y, 2));
@@ -64,8 +64,8 @@ void CStar::Draw(HDC hdc)
 
 	for (int i = 0; i < 5; i++)
 	{
-		large_point[i * 2 + 1].x = small_r * cos(DegreeToRadian(0 + 72 * i)) + point.x + cos(DegreeToRadian(angle));
-		large_point[i * 2 + 1].y = small_r * sin(DegreeToRadian(0 + 72 * i)) + point.y + sin(DegreeToRadian(angle));
+		large_point[i * 2 + 1].x = small_r * cos(DegreeToRadian(angle + 72 * i)) + point.x + cos(DegreeToRadian(angle));
+		large_point[i * 2 + 1].y = small_r * sin(DegreeToRadian(angle + 72 * i)) + point.y + sin(DegreeToRadian(angle));
 	}
 
 	HPEN hPen = CreatePen(PS_NULL, 0, RGB(1, 0, 0)); // 선 없는 펜 생성
@@ -77,7 +77,12 @@ void CStar::Draw(HDC hdc)
 	DeleteObject(hPen); // 생성한 펜 삭제
 }
 
-BOOL CStar::Collision(int shape)
+BOOL CStar::Collision(CObject* object)
 {
 	return 0;
+}
+
+int CStar::GetR()
+{
+	return r;
 }

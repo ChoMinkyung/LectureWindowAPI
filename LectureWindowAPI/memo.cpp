@@ -123,43 +123,24 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static TCHAR str[100];
-	static int count, yPos;
 
 	switch (message)
 	{
 	case WM_CREATE: // 윈도우가 생성될 때 한번 호출 (생성자처럼)
-		count = 0;
-		yPos = 100;
+
 		break;
 	case WM_KEYDOWN: //-> 가상 키 값 : wParam
 	{
-		int breakpoint = 9999;
 	}
 	break;
 	case WM_KEYUP:
 	{
-		int breakpoint = 9999;
 
 	}
 	break;
 
 	case WM_CHAR:
 	{
-		if (wParam == VK_BACK && count > 0)
-		{
-			count--;
-		}
-		else if (wParam == VK_RETURN)
-		{
-			yPos += 20;
-		}
-		else
-		{
-			str[count++] = wParam;
-		}
-		str[count] = NULL;
-		InvalidateRgn(hWnd, NULL, TRUE);
 
 	}
 	break;

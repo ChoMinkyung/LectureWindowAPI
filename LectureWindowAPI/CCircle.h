@@ -11,9 +11,10 @@ public:
 	CCircle();
 	CCircle(POINT center, int r);
 	~CCircle();
-	void Update(RECT* rectView);
+	void Update(RECT* rectView)override;
 	void Draw(HDC hdc) override;
-	BOOL Collision(int shape) override;
-	BOOL InCircleWithCircle(CCircle c);
+	BOOL Collision(std::vector<CObject*>& objects) override;
+	BOOL CircleCollision(CObject* object);
+	int GetR() override;
 };
 
